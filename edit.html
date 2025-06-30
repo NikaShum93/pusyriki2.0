@@ -37,9 +37,14 @@
       padding: 0.5em;
       border-radius: 8px;
       border: none;
-      background: #111;
-      color: #00f9ff;
+      background: #fff;
+      color: #000;
       font-size: 1em;
+      outline: none;
+      box-shadow: 0 0 4px #00f9ff;
+    }
+    input:focus, textarea:focus, select:focus {
+      box-shadow: 0 0 8px #00f9ff;
     }
     button {
       margin-top: 2em;
@@ -63,6 +68,9 @@
       border-radius: 12px;
       width: 80vw;
       max-width: 600px;
+      box-shadow: 0 0 12px #00f9ff;
+      border: 1px solid #00f9ff;
+      color: #00f9ff;
     }
   </style>
 </head>
@@ -71,31 +79,31 @@
   <h1>Пузырики <span style="color:#fff">by Nika Shum & КГБ</span></h1>
 
   <label>Изображение пузыря (URL)</label>
-  <input id="bubbleImage" placeholder="https://..." />
+  <input id="bubbleImage" placeholder="https://..." autocomplete="off" />
 
   <label>Финальный фидбек</label>
-  <input id="feedback" placeholder="🎉 Well done!" />
+  <input id="feedback" placeholder="🎉 Well done!" autocomplete="off" />
 
   <label>Изображение фидбека (сундука)</label>
-  <input id="feedbackImage" placeholder="https://..." />
+  <input id="feedbackImage" placeholder="https://..." autocomplete="off" />
 
   <label>Размер шрифта заданий</label>
-  <input id="fontSize" type="number" value="36" />
+  <input id="fontSize" type="number" value="36" autocomplete="off" />
 
   <label>Размер шрифта фидбека</label>
-  <input id="feedbackFontSize" type="number" value="36" />
+  <input id="feedbackFontSize" type="number" value="36" autocomplete="off" />
 
   <label>Цвет фона фидбека</label>
-  <input id="feedbackColor" type="color" value="#FFA500" />
+  <input id="feedbackColor" type="color" value="#FFA500" autocomplete="off" />
 
   <label>Цвет текста фидбека</label>
-  <input id="feedbackTextColor" type="color" value="#FFFFFF" />
+  <input id="feedbackTextColor" type="color" value="#FFFFFF" autocomplete="off" />
 
   <label>Звук лопания пузыря (mp3)</label>
-  <input id="popSound" placeholder="https://..." />
+  <input id="popSound" placeholder="https://..." autocomplete="off" />
 
   <label>Звук открытия сундука (mp3)</label>
-  <input id="openSound" placeholder="https://..." />
+  <input id="openSound" placeholder="https://..." autocomplete="off" />
 
   <label>Отключить сундук</label>
   <select id="noChest">
@@ -110,7 +118,7 @@
   </select>
 
   <label>Задания (по одному в строке)</label>
-  <textarea id="tasks" rows="6" placeholder="Например:\nSay a sentence with 'because'\nWhat did you do yesterday?"></textarea>
+  <textarea id="tasks" rows="6" placeholder="Например:\nSay a sentence with 'because'\nWhat did you do yesterday?" autocomplete="off"></textarea>
 
   <button onclick="generate()">🔮 Скопировать код для Genially</button>
 
@@ -132,7 +140,7 @@
         neon: neon.value,
         tasks: tasks.value.trim()
       });
-      const url = `https://nikashum93.github.io/pusyriki2.0/?${params.toString()}`;
+      const url = `https://nikashum93.github.io/pusyriki2.0/index.html?${params.toString()}`;
       output.innerHTML = `<textarea readonly style='width:100%;height:100px;'>
 <iframe src="${url}" style="width:100%;height:100%" frameborder="0" allowfullscreen></iframe>
 </textarea>`;
