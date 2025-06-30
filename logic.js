@@ -12,18 +12,21 @@
   const feedbackFont = decodeURIComponent(urlParams.get('feedbackFont') || 'Comic Sans MS, sans-serif');
   const feedbackColor = decodeURIComponent(urlParams.get('feedbackColor') || '#ffffff');
   const feedbackBg = decodeURIComponent(urlParams.get('feedbackBg') || '#f39c12');
+  const feedbackStyle = decodeURIComponent(urlParams.get('feedbackStyle') || 'default');
 
   const taskFont = decodeURIComponent(urlParams.get('taskFont') || 'sans-serif');
   const taskColor = decodeURIComponent(urlParams.get('taskColor') || '#ffffff');
   const taskBg = decodeURIComponent(urlParams.get('taskBg') || '#00f2fe');
 
-  const popSoundSrc = decodeURIComponent(urlParams.get('popSound') || 'https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3');
+  let popSoundSrc = decodeURIComponent(urlParams.get('popSound') || '');
+  if (!popSoundSrc.trim()) popSoundSrc = 'https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3';
 
   const TASKS = {};
   for (let [key, value] of urlParams.entries()) {
     if (key.startsWith('task')) {
       const id = parseInt(key.replace('task', ''));
-      TASKS[id] = decodeURIComponent(value);
+      const decoded = decodeURIComponent(value);
+      if (decoded.trim()) TASKS[id] = decoded;
     }
   }
 
@@ -191,6 +194,13 @@
       boxShadow: '0 8px 20px rgba(0,0,0,0.3)', zIndex: 400, pointerEvents: 'none',
       textShadow: '2px 2px 6px rgba(0,0,0,0.4)'
     });
+    if (feedbackStyle === 'neon') {
+      label.style.textShadow = `0 0 8px ${feedbackColor}, 0 0 16px ${feedbackColor}`;
+    } else if (feedbackStyle === 'gradient') {
+      label.style.background = `linear-gradient(135deg, ${feedbackColor}, ${feedbackBg})`;
+      label.style.color = '#fff';
+      label.style.textShadow = 'none';
+    }
     root.appendChild(label);
   }
 })();
