@@ -96,7 +96,7 @@
   <label>Финальный фидбек (текст)</label>
   <input type="text" id="finalText" placeholder="🎉 Well done!">
 
-  <label>Изображение фидбека (URL)</label>
+  <label>Изображение фидбека (сундука) (URL)</label>
   <input type="text" id="finalImg" placeholder="https://...png">
 
   <label><input type="checkbox" id="showFinal" checked> Показывать финальный фидбек</label>
@@ -112,25 +112,11 @@
     <option value="sans-serif">Sans-serif</option>
   </select>
 
-  <label>Цвет фона плашки задания (#hex)</label>
+  <label>Цвет фона плашки (#hex)</label>
   <input type="text" id="bg" placeholder="#4facfe">
 
-  <label>Цвет текста задания (#hex)</label>
+  <label>Цвет текста плашки (#hex)</label>
   <input type="text" id="color" placeholder="#ffffff">
-
-  <label>Шрифт финальной плашки</label>
-  <select id="finalFont">
-    <option value="Comic Sans MS">Comic Sans MS</option>
-    <option value="Arial">Arial</option>
-    <option value="Verdana">Verdana</option>
-    <option value="sans-serif">Sans-serif</option>
-  </select>
-
-  <label>Цвет фона финальной плашки (#hex)</label>
-  <input type="text" id="finalBg" placeholder="#f39c12">
-
-  <label>Цвет текста финальной плашки (#hex)</label>
-  <input type="text" id="finalColor" placeholder="#ffffff">
 
   <label>Задания (по одному в строке)</label>
   <textarea id="tasksInput" rows="10" placeholder="Например:&#10;Say a sentence with 'because'&#10;What did you do yesterday?"></textarea>
@@ -142,16 +128,21 @@
 
   <script>
     function generateCode() {
-      const img = encodeURIComponent(document.getElementById('bubbleImg').value);
+      
+    const img = encodeURIComponent(document.getElementById('bubbleImg').value);
+    const feedbackImg = encodeURIComponent(document.getElementById('feedbackImg').value);
+    const noChest = document.getElementById('noChest').checked ? '1' : '';
+    const taskFont = encodeURIComponent(document.getElementById('taskFont').value);
+    const taskColor = encodeURIComponent(document.getElementById('taskColor').value);
+    const finalFont = encodeURIComponent(document.getElementById('finalFont').value);
+    const finalColor = encodeURIComponent(document.getElementById('finalColor').value);
+    
       const feedback = encodeURIComponent(document.getElementById('finalText').value);
       const finalImg = encodeURIComponent(document.getElementById('finalImg').value);
       const showFinal = document.getElementById('showFinal').checked;
       const font = encodeURIComponent(document.getElementById('font').value);
       const bg = encodeURIComponent(document.getElementById('bg').value);
       const color = encodeURIComponent(document.getElementById('color').value);
-      const finalFont = encodeURIComponent(document.getElementById('finalFont').value);
-      const finalBg = encodeURIComponent(document.getElementById('finalBg').value);
-      const finalColor = encodeURIComponent(document.getElementById('finalColor').value);
       const popSound = encodeURIComponent(document.getElementById('popSound').value);
 
       const rawTasks = document.getElementById('tasksInput').value;
@@ -172,9 +163,6 @@
                   (font ? `&font=${font}` : '') +
                   (bg ? `&bg=${bg}` : '') +
                   (color ? `&color=${color}` : '') +
-                  (finalFont ? `&finalFont=${finalFont}` : '') +
-                  (finalBg ? `&finalBg=${finalBg}` : '') +
-                  (finalColor ? `&finalColor=${finalColor}` : '') +
                   (popSound ? `&popSound=${popSound}` : '');
 
       const iframeCode = `<iframe style="width: 1280px; height: 720px; border: none;" src="${url}" scrolling="no" allowfullscreen></iframe>`;
