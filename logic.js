@@ -1,3 +1,4 @@
+// logic.js
 (function(){
   const root = document.getElementById('bubble-extension');
   const urlParams = new URLSearchParams(window.location.search);
@@ -12,12 +13,12 @@
   const feedbackColor = decodeURIComponent(urlParams.get('feedbackColor') || '#ffffff');
   const feedbackBg = decodeURIComponent(urlParams.get('feedbackBg') || '#f39c12');
   const feedbackStyle = decodeURIComponent(urlParams.get('feedbackStyle') || 'default');
-  const feedbackSize = decodeURIComponent(urlParams.get('feedbackSize') || '36');
+  const feedbackSize = decodeURIComponent(urlParams.get('feedbackSize') || '36px');
 
   const taskFont = decodeURIComponent(urlParams.get('taskFont') || 'sans-serif');
   const taskColor = decodeURIComponent(urlParams.get('taskColor') || '#ffffff');
   const taskBg = decodeURIComponent(urlParams.get('taskBg') || '#00f2fe');
-  const taskSize = decodeURIComponent(urlParams.get('taskSize') || '22');
+  const taskSize = decodeURIComponent(urlParams.get('taskSize') || '22px');
 
   let popSoundSrc = decodeURIComponent(urlParams.get('popSound') || '');
   if (!popSoundSrc.trim()) popSoundSrc = 'https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3';
@@ -137,7 +138,7 @@
     Object.assign(msg.style, {
       position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
       background: taskBg, color: taskColor, fontFamily: taskFont,
-      padding: '24px 36px', borderRadius: '20px', fontSize: `${taskSize}px`,
+      padding: '24px 36px', borderRadius: '20px', fontSize: taskSize,
       textAlign: 'center', boxShadow: '0 6px 16px rgba(0,0,0,0.3)', zIndex: 200,
       pointerEvents: 'auto', cursor: 'pointer'
     });
@@ -168,7 +169,6 @@
       root.appendChild(img);
       img.addEventListener('click', () => {
         showFinalTextOnly();
-        sparkleEffect();
       });
     } else {
       const chest = document.createElement('img');
@@ -182,7 +182,6 @@
       chest.addEventListener('click', () => {
         chest.src = 'https://img.genially.com/64233afb55129a0017751c8e/d76550fd-2622-441f-bbf2-faee6906772e.png';
         showFinalTextOnly();
-        sparkleEffect();
       });
     }
   }
@@ -192,43 +191,45 @@
     label.textContent = finalText;
     Object.assign(label.style, {
       position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-      fontSize: `${feedbackSize || 36}px`, fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
+      fontSize: feedbackSize || '36px', fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
       padding: '16px 30px', borderRadius: '16px', fontFamily: feedbackFont,
       boxShadow: '0 8px 20px rgba(0,0,0,0.3)', zIndex: 400, pointerEvents: 'auto',
-      textAlign: 'center', maxWidth: '90%'
+      transition: 'transform 0.2s ease', cursor: 'pointer', textAlign: 'center'
     });
 
     if (feedbackStyle === 'neon') {
-      label.style.textShadow = `0 0 6px ${feedbackColor}, 0 0 12px ${feedbackColor}`;
       label.style.boxShadow = `0 0 12px ${feedbackColor}, 0 0 24px ${feedbackColor}`;
     } else if (feedbackStyle === 'gradient') {
       label.style.background = `linear-gradient(135deg, ${feedbackColor}, ${feedbackBg})`;
       label.style.color = '#fff';
-      label.style.textShadow = 'none';
     }
 
+    label.addEventListener('mouseenter', () => {
+      label.style.transform = 'translate(-50%, -50%) scale(1.05)';
+    });
+    label.addEventListener('mouseleave', () => {
+      label.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
     label.addEventListener('click', () => {
-      new Audio(popSoundSrc).play().catch(() => {});
-      sparkleEffect();
+      const sparkle = document.createElement('div');
+      sparkle.textContent = '✨';
+      Object.assign(sparkle.style, {
+        position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)',
+        fontSize: '24px', zIndex: 500, pointerEvents: 'none', opacity: 1,
+        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
+      });
+      root.appendChild(sparkle);
+      requestAnimationFrame(() => {
+        sparkle.style.opacity = '0';
+        sparkle.style.transform = 'scale(1.6)';
+      });
+      setTimeout(() => sparkle.remove(), 600);
+
+      const popSound = new Audio(popSoundSrc);
+      popSound.play().catch(() => {});
     });
 
     root.appendChild(label);
-  }
-
-  function sparkleEffect() {
-    const sparkle = document.createElement('div');
-    sparkle.textContent = '✨';
-    Object.assign(sparkle.style, {
-      position: 'absolute', top: '50%', left: '50%',
-      transform: 'translate(-50%, -50%)', fontSize: '40px',
-      zIndex: 500, pointerEvents: 'none', opacity: 1,
-      transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
-    });
-    root.appendChild(sparkle);
-    requestAnimationFrame(() => {
-      sparkle.style.opacity = '0';
-      sparkle.style.transform = 'scale(2)';
-    });
-    setTimeout(() => sparkle.remove(), 800);
   }
 })();
