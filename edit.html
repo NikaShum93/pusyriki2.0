@@ -2,147 +2,105 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Пузырики 2.0 — редактор</title>
+  <title>Пузырики 2.0 — Редактор</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(180deg, #0a0f1b, #000000);
-      padding: 20px;
-      max-width: 700px;
-      margin: auto;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(180deg, #0a0f1b, #000);
       color: #fff;
-    }
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    .logo img {
-      width: 80px;
-      animation: glow 3s infinite ease-in-out;
-    }
-    @keyframes glow {
-      0% { filter: drop-shadow(0 0 0px #0ff); }
-      50% { filter: drop-shadow(0 0 12px #ff00cc); }
-      100% { filter: drop-shadow(0 0 0px #0ff); }
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
     }
     h1 {
       text-align: center;
       font-size: 28px;
       color: #0ff;
-      text-shadow: 0 0 10px #0ff;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      margin: 14px 0 6px;
+      margin-top: 14px;
       font-size: 14px;
-      color: #f0f0f0;
     }
-    input[type="text"], select, textarea {
+    input[type="text"],
+    textarea {
       width: 100%;
       padding: 10px;
-      margin-bottom: 6px;
+      margin-top: 6px;
       background: #111;
       border: 1px solid #0ff;
       border-radius: 6px;
       color: #0ff;
       box-shadow: 0 0 6px #0ff inset;
-      font-family: monospace;
+    }
+    input[type="color"] {
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    textarea {
+      height: 120px;
     }
     button {
-      padding: 10px 16px;
-      margin: 12px 4px 12px 0;
+      margin-top: 20px;
+      padding: 12px 20px;
       background: linear-gradient(90deg, #ff00cc, #3333ff);
       border: none;
       border-radius: 8px;
       color: white;
       font-weight: bold;
-      font-family: 'Orbitron', sans-serif;
       cursor: pointer;
-      text-shadow: 0 0 4px #000;
       box-shadow: 0 0 10px #ff00cc;
     }
     #output {
       margin-top: 20px;
-      background: #111;
       padding: 10px;
-      word-break: break-word;
+      background: #111;
       border: 1px solid #0ff;
-      border-radius: 8px;
-      box-shadow: 0 0 6px #0ff inset;
-      min-height: 80px;
+      border-radius: 6px;
       white-space: pre-wrap;
-    }
-    small {
-      display: block;
-      margin-top: 30px;
-      text-align: center;
-      font-size: 12px;
-      color: #888;
+      word-break: break-word;
+      color: #0ff;
     }
   </style>
 </head>
 <body>
-  <div class="logo">
-    <img src="https://nikashum93.github.io/pusyriki/assets/kgb-logo.png" alt="KGB">
-  </div>
-  <h1>Пузырики 2.0 — редактор</h1>
+  <h1>Пузырики 2.0 — Редактор</h1>
 
-  <label>Изображение пузыря (URL)</label>
+  <label>Ссылка на картинку пузыря:</label>
   <input type="text" id="bubbleImg" placeholder="https://...">
 
-  <label>Финальный фидбек (текст)</label>
+  <label>Ссылка на картинку фидбека (оставь пустым, если нужен сундук):</label>
+  <input type="text" id="feedbackImg" placeholder="https://...">
+
+  <label><input type="checkbox" id="noChest"> Без сундука (только текст)</label>
+
+  <label>Финальный текст:</label>
   <input type="text" id="finalText" placeholder="🎉 Well done!">
 
-  <label>Изображение фидбека (сундука) (URL)</label>
-  <input type="text" id="finalImg" placeholder="https://...png">
+  <label>Цвет текста задания: <input type="color" id="taskColor" value="#ffffff"></label>
+  <label>Цвет фона задания: <input type="color" id="taskBg" value="#4facfe"></label>
+  <label>Цвет текста фидбека: <input type="color" id="finalColor" value="#ffffff"></label>
 
-  <label><input type="checkbox" id="showFinal" checked> Показывать финальный фидбек</label>
+  <label>Ссылка на звук лопания пузыря:</label>
+  <input type="text" id="popSound" placeholder="https://...">
 
-  <label>Звук лопания (mp3 URL)</label>
-  <input type="text" id="popSound" placeholder="https://...mp3">
-
-  <label>Шрифт плашки задания</label>
-  <select id="font">
-    <option value="Comic Sans MS">Comic Sans MS</option>
-    <option value="Arial">Arial</option>
-    <option value="Verdana">Verdana</option>
-    <option value="sans-serif">Sans-serif</option>
-  </select>
-
-  <label>Цвет фона плашки (#hex)</label>
-  <input type="text" id="bg" placeholder="#4facfe">
-
-  <label>Цвет текста плашки (#hex)</label>
-  <input type="text" id="color" placeholder="#ffffff">
-
-  <label>Задания (по одному в строке)</label>
-  <textarea id="tasksInput" rows="10" placeholder="Например:&#10;Say a sentence with 'because'&#10;What did you do yesterday?"></textarea>
+  <label>Задания (по одному в строке):</label>
+  <textarea id="tasksInput" placeholder="Например:\nSay a sentence with 'because'\nWhat did you do yesterday?"></textarea>
 
   <button onclick="generateCode()">🔮 Скопировать код для Genially</button>
 
   <div id="output"></div>
-  <small>© Корпорация Геймификации Будущего</small>
 
   <script>
     function generateCode() {
-      
-    const img = encodeURIComponent(document.getElementById('bubbleImg').value);
-    const feedbackImg = encodeURIComponent(document.getElementById('feedbackImg').value);
-    const noChest = document.getElementById('noChest').checked ? '1' : '';
-    const taskFont = encodeURIComponent(document.getElementById('taskFont').value);
-    const taskColor = encodeURIComponent(document.getElementById('taskColor').value);
-    const finalFont = encodeURIComponent(document.getElementById('finalFont').value);
-    const finalColor = encodeURIComponent(document.getElementById('finalColor').value);
-    
-      const feedback = encodeURIComponent(document.getElementById('finalText').value);
-      const finalImg = encodeURIComponent(document.getElementById('finalImg').value);
-      const showFinal = document.getElementById('showFinal').checked;
-      const font = encodeURIComponent(document.getElementById('font').value);
-      const bg = encodeURIComponent(document.getElementById('bg').value);
-      const color = encodeURIComponent(document.getElementById('color').value);
+      const img = encodeURIComponent(document.getElementById('bubbleImg').value);
+      const feedbackImg = encodeURIComponent(document.getElementById('feedbackImg').value);
+      const noChest = document.getElementById('noChest').checked ? '1' : '';
+      const final = encodeURIComponent(document.getElementById('finalText').value);
+      const taskColor = encodeURIComponent(document.getElementById('taskColor').value);
+      const taskBg = encodeURIComponent(document.getElementById('taskBg').value);
+      const finalColor = encodeURIComponent(document.getElementById('finalColor').value);
       const popSound = encodeURIComponent(document.getElementById('popSound').value);
 
       const rawTasks = document.getElementById('tasksInput').value;
@@ -154,26 +112,26 @@
       }
 
       const taskParams = tasks.map((task, index) => `task${index + 1}=${encodeURIComponent(task)}`).join('&');
+      let url = `https://nikashum93.github.io/pusyriki2.0/index.html?${taskParams}`;
 
-      const url = `https://nikashum93.github.io/pusyriki2.0/index.html?${taskParams}` +
-                  (img ? `&img=${img}` : '') +
-                  (feedback ? `&final=${feedback}` : '') +
-                  (finalImg ? `&finalImg=${finalImg}` : '') +
-                  (!showFinal ? `&showFinal=false` : '') +
-                  (font ? `&font=${font}` : '') +
-                  (bg ? `&bg=${bg}` : '') +
-                  (color ? `&color=${color}` : '') +
-                  (popSound ? `&popSound=${popSound}` : '');
+      if (img) url += `&img=${img}`;
+      if (feedbackImg) url += `&feedback=${feedbackImg}`;
+      if (noChest) url += `&nochest=1`;
+      if (final) url += `&final=${final}`;
+      if (taskColor) url += `&taskColor=${taskColor}`;
+      if (taskBg) url += `&taskBg=${taskBg}`;
+      if (finalColor) url += `&finalColor=${finalColor}`;
+      if (popSound) url += `&pop=${popSound}`;
 
       const iframeCode = `<iframe style="width: 1280px; height: 720px; border: none;" src="${url}" scrolling="no" allowfullscreen></iframe>`;
+
       const output = document.getElementById('output');
       output.textContent = iframeCode;
 
       navigator.clipboard.writeText(iframeCode)
         .then(() => alert("Скопировано в буфер обмена!"))
         .catch(() => {
-          alert("Не удалось скопировать автоматически. Скопируй вручную.");
-          window.getSelection().selectAllChildren(output);
+          alert("Не удалось скопировать. Скопируй вручную.");
         });
     }
   </script>
