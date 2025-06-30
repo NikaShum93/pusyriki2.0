@@ -23,6 +23,9 @@
   let popSoundSrc = decodeURIComponent(urlParams.get('popSound') || '');
   if (!popSoundSrc.trim()) popSoundSrc = 'https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3';
 
+  let openSoundSrc = decodeURIComponent(urlParams.get('openSound') || '');
+  if (!openSoundSrc.trim()) openSoundSrc = 'https://nikashum93.github.io/pusyriki2.0/sounds/open.mp3';
+
   const TASKS = {};
   for (let [key, value] of urlParams.entries()) {
     if (key.startsWith('task')) {
@@ -226,8 +229,8 @@
       });
       setTimeout(() => sparkle.remove(), 600);
 
-      const popSound = new Audio(popSoundSrc);
-      popSound.play().catch(() => {});
+      const openSound = new Audio(openSoundSrc);
+      openSound.play().catch(() => {});
     });
 
     root.appendChild(label);
