@@ -13,10 +13,12 @@
   const feedbackColor = decodeURIComponent(urlParams.get('feedbackColor') || '#ffffff');
   const feedbackBg = decodeURIComponent(urlParams.get('feedbackBg') || '#f39c12');
   const feedbackStyle = decodeURIComponent(urlParams.get('feedbackStyle') || 'default');
+  const feedbackSize = decodeURIComponent(urlParams.get('feedbackSize') || '32');
 
   const taskFont = decodeURIComponent(urlParams.get('taskFont') || 'sans-serif');
   const taskColor = decodeURIComponent(urlParams.get('taskColor') || '#ffffff');
   const taskBg = decodeURIComponent(urlParams.get('taskBg') || '#00f2fe');
+  const taskSize = decodeURIComponent(urlParams.get('taskSize') || '22');
 
   let popSoundSrc = decodeURIComponent(urlParams.get('popSound') || '');
   if (!popSoundSrc.trim()) popSoundSrc = 'https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3';
@@ -136,7 +138,7 @@
     Object.assign(msg.style, {
       position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
       background: taskBg, color: taskColor, fontFamily: taskFont,
-      padding: '24px 36px', borderRadius: '20px', fontSize: '22px',
+      padding: '24px 36px', borderRadius: '20px', fontSize: `${taskSize}px`,
       textAlign: 'center', boxShadow: '0 6px 16px rgba(0,0,0,0.3)', zIndex: 200,
       pointerEvents: 'auto', cursor: 'pointer'
     });
@@ -189,7 +191,7 @@
     label.textContent = finalText;
     Object.assign(label.style, {
       position: 'absolute', top: '38%', left: '50%', transform: 'translate(-50%, -50%)',
-      fontSize: '32px', fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
+      fontSize: `${feedbackSize}px`, fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
       padding: '16px 30px', borderRadius: '16px', fontFamily: feedbackFont,
       boxShadow: '0 8px 20px rgba(0,0,0,0.3)', zIndex: 400, pointerEvents: 'none',
       textShadow: '2px 2px 6px rgba(0,0,0,0.4)'
