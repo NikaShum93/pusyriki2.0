@@ -64,69 +64,82 @@
   });
   root.appendChild(counter);
 
-  for (let i = 1; i <= total; i++) {
-    const el = document.createElement('img');
-    el.src = bubbleImg;
-    el.style.opacity = isCustomImg ? '1' : '0.6';
-    Object.assign(el.style, {
-      position: 'absolute',
-      width: '80px',
-      height: '80px',
-      pointerEvents: 'auto',
-      cursor: 'pointer',
-      zIndex: 100,
-      transition: 'transform 0.2s ease'
-    });
+  function createBubbles() {
+    const padding = 10;
+    const maxW = root.clientWidth - 80 - padding * 2;
+    const maxH = root.clientHeight - 80 - padding * 2;
 
-    const maxW = root.clientWidth - 80;
-    const maxH = root.clientHeight - 80;
-    el.style.left = Math.random() * maxW + 'px';
-    el.style.top  = Math.random() * maxH + 'px';
-
-    const dx = (Math.random()*2 - 1) * 1.5;
-    const dy = (Math.random()*2 - 1) * 1.5;
-    const bubble = { el, dx, dy, id: i };
-    bubbles.push(bubble);
-
-    el.addEventListener('click', () => {
-      const popSound = new Audio('https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3');
-      popSound.play().catch(() => {});
-      el.remove();
-      showMessage(i);
-      popped++;
-      counter.innerHTML = `🫧 <strong>${popped} / ${total}</strong>`;
-
-      const sparkle = document.createElement('div');
-      sparkle.textContent = '✨';
-      Object.assign(sparkle.style, {
+    for (let i = 1; i <= total; i++) {
+      const el = document.createElement('img');
+      el.src = bubbleImg;
+      el.style.opacity = isCustomImg ? '1' : '0.6';
+      Object.assign(el.style, {
         position: 'absolute',
-        left: el.style.left,
-        top: el.style.top,
-        fontSize: '18px',
-        zIndex: 150,
-        pointerEvents: 'none',
-        opacity: 1,
-        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
+        width: '80px',
+        height: '80px',
+        pointerEvents: 'auto',
+        cursor: 'pointer',
+        zIndex: 100,
+        transition: 'transform 0.2s ease'
       });
-      root.appendChild(sparkle);
-      requestAnimationFrame(() => {
-        sparkle.style.opacity = '0';
-        sparkle.style.transform = 'scale(1.6)';
+
+      const x = padding + Math.random() * maxW;
+      const y = padding + Math.random() * maxH;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+
+      let dx = (Math.random() * 2 - 1) * 1.5;
+      let dy = (Math.random() * 2 - 1) * 1.5;
+      if (Math.abs(dx) < 0.3) dx = 0.3 * Math.sign(dx || 1);
+      if (Math.abs(dy) < 0.3) dy = 0.3 * Math.sign(dy || 1);
+
+      const bubble = { el, dx, dy, id: i };
+      bubbles.push(bubble);
+
+      el.addEventListener('click', () => {
+        const popSound = new Audio('https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3');
+        popSound.play().catch(() => {});
+        el.remove();
+        showMessage(i);
+        popped++;
+        counter.innerHTML = `🫧 <strong>${popped} / ${total}</strong>`;
+
+        const sparkle = document.createElement('div');
+        sparkle.textContent = '✨';
+        Object.assign(sparkle.style, {
+          position: 'absolute',
+          left: el.style.left,
+          top: el.style.top,
+          fontSize: '18px',
+          zIndex: 150,
+          pointerEvents: 'none',
+          opacity: 1,
+          transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
+        });
+        root.appendChild(sparkle);
+        requestAnimationFrame(() => {
+          sparkle.style.opacity = '0';
+          sparkle.style.transform = 'scale(1.6)';
+        });
+        setTimeout(() => sparkle.remove(), 600);
       });
-      setTimeout(() => sparkle.remove(), 600);
-    });
 
-    el.addEventListener('mouseenter', () => {
-      bubble.dx *= 0.2;
-      bubble.dy *= 0.2;
-    });
-    el.addEventListener('mouseleave', () => {
-      bubble.dx *= 5;
-      bubble.dy *= 5;
-    });
+      el.addEventListener('mouseenter', () => {
+        bubble.dx *= 0.2;
+        bubble.dy *= 0.2;
+      });
+      el.addEventListener('mouseleave', () => {
+        bubble.dx *= 5;
+        bubble.dy *= 5;
+      });
 
-    root.appendChild(el);
+      root.appendChild(el);
+    }
   }
+
+  window.addEventListener('load', () => {
+    setTimeout(createBubbles, 50);
+  });
 
   function animate() {
     const W = root.clientWidth;
