@@ -1,138 +1,116 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Пузырики 2.0 — Редактор</title>
+  <meta charset="UTF-8" />
+  <title>Редактор "Пузырики 2.0"</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(180deg, #0a0f1b, #000);
-      color: #fff;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      font-size: 28px;
-      color: #0ff;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 14px;
-      font-size: 14px;
-    }
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      background: #111;
-      border: 1px solid #0ff;
-      border-radius: 6px;
-      color: #0ff;
-      box-shadow: 0 0 6px #0ff inset;
-    }
-    input[type="color"] {
-      margin-left: 10px;
-      vertical-align: middle;
-    }
-    textarea {
-      height: 120px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: linear-gradient(90deg, #ff00cc, #3333ff);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff00cc;
-    }
-    #output {
-      margin-top: 20px;
-      padding: 10px;
-      background: #111;
-      border: 1px solid #0ff;
-      border-radius: 6px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: #0ff;
-    }
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; max-width: 700px; margin: auto; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select { width: 100%; padding: 6px 10px; margin-top: 4px; border-radius: 6px; border: none; font-size: 14px; }
+    textarea { width: 100%; height: 120px; padding: 10px; font-family: monospace; margin-top: 6px; }
+    button { margin-top: 20px; padding: 10px 16px; font-size: 16px; border: none; border-radius: 8px; background: #00f2fe; color: #000; cursor: pointer; }
+    .section { border: 1px solid #333; padding: 16px; border-radius: 12px; margin-top: 20px; background: #1c1c1c; }
   </style>
 </head>
 <body>
-  <h1>Пузырики 2.0 — Редактор</h1>
+  <h1>Редактор "Пузырики 2.0"</h1>
 
-  <label>Ссылка на картинку пузыря:</label>
-  <input type="text" id="bubbleImg" placeholder="https://...">
+  <div class="section">
+    <label>Вставьте задания (по одному на строку):</label>
+    <textarea id="tasks" placeholder="Пример: What's your name?"></textarea>
+  </div>
 
-  <label>Ссылка на картинку фидбека (оставь пустым, если нужен сундук):</label>
-  <input type="text" id="feedbackImg" placeholder="https://...">
+  <div class="section">
+    <label>Картинка пузыря (URL):</label>
+    <input type="text" id="img" placeholder="Оставьте пустым для стандартной">
+    
+    <label>Звук при лопании (URL):</label>
+    <input type="text" id="popSound" placeholder="Оставьте пустым для стандартного">
 
-  <label><input type="checkbox" id="noChest"> Без сундука (только текст)</label>
+    <label>Шрифт заданий:</label>
+    <input type="text" id="taskFont" placeholder="sans-serif">
+    
+    <label>Цвет текста задания:</label>
+    <input type="color" id="taskColor" value="#ffffff">
 
-  <label>Финальный текст:</label>
-  <input type="text" id="finalText" placeholder="🎉 Well done!">
+    <label>Цвет фона задания:</label>
+    <input type="color" id="taskBg" value="#00f2fe">
 
-  <label>Цвет текста задания: <input type="color" id="taskColor" value="#ffffff"></label>
-  <label>Цвет фона задания: <input type="color" id="taskBg" value="#4facfe"></label>
-  <label>Цвет текста фидбека: <input type="color" id="finalColor" value="#ffffff"></label>
+    <label>Размер шрифта заданий (в px):</label>
+    <input type="number" id="taskSize" placeholder="22" min="10" max="100">
+  </div>
 
-  <label>Ссылка на звук лопания пузыря:</label>
-  <input type="text" id="popSound" placeholder="https://...">
+  <div class="section">
+    <label>Финальный текст:</label>
+    <input type="text" id="final" placeholder="🎉 Well done!">
 
-  <label>Задания (по одному в строке):</label>
-  <textarea id="tasksInput" placeholder="Например:\nSay a sentence with 'because'\nWhat did you do yesterday?"></textarea>
+    <label>Фидбек: изображение (URL):</label>
+    <input type="text" id="finalImg" placeholder="Оставьте пустым для сундука">
 
-  <button onclick="generateCode()">🔮 Скопировать код для Genially</button>
+    <label><input type="checkbox" id="nochest"> Без сундука (только текст)</label>
 
-  <div id="output"></div>
+    <label>Шрифт фидбека:</label>
+    <input type="text" id="feedbackFont" placeholder="Comic Sans MS, sans-serif">
+
+    <label>Цвет текста фидбека:</label>
+    <input type="color" id="feedbackColor" value="#ffffff">
+
+    <label>Фон фидбека:</label>
+    <input type="color" id="feedbackBg" value="#f39c12">
+
+    <label>Размер шрифта фидбека (в px):</label>
+    <input type="number" id="feedbackSize" placeholder="32" min="10" max="100">
+
+    <label>Эффект финального фидбека:</label>
+    <select id="feedbackStyle">
+      <option value="default">Обычный</option>
+      <option value="neon">Неон</option>
+      <option value="gradient">Градиент</option>
+    </select>
+  </div>
+
+  <button onclick="generateCode()">Скопировать код</button>
+
+  <div class="section">
+    <label>Ваш iframe-код:</label>
+    <textarea id="result" readonly></textarea>
+  </div>
 
   <script>
     function generateCode() {
-      const img = encodeURIComponent(document.getElementById('bubbleImg').value);
-      const feedbackImg = encodeURIComponent(document.getElementById('feedbackImg').value);
-      const noChest = document.getElementById('noChest').checked ? '1' : '';
-      const final = encodeURIComponent(document.getElementById('finalText').value);
-      const taskColor = encodeURIComponent(document.getElementById('taskColor').value);
-      const taskBg = encodeURIComponent(document.getElementById('taskBg').value);
-      const finalColor = encodeURIComponent(document.getElementById('finalColor').value);
-      const popSound = encodeURIComponent(document.getElementById('popSound').value);
+      const get = id => encodeURIComponent(document.getElementById(id).value.trim());
+      const add = (key, id) => {
+        const val = document.getElementById(id).value.trim();
+        if (val) params.push(`${key}=${encodeURIComponent(val)}`);
+      };
+      const params = [];
 
-      const rawTasks = document.getElementById('tasksInput').value;
-      const tasks = rawTasks.split('\n').map(t => t.trim()).filter(t => t.length > 0);
+      const tasks = document.getElementById("tasks").value.trim().split("\n");
+      tasks.forEach((t, i) => {
+        if (t.trim()) params.push(`task${i + 1}=${encodeURIComponent(t.trim())}`);
+      });
 
-      if (tasks.length === 0) {
-        alert("Добавь хотя бы одно задание!");
-        return;
-      }
+      add("img", "img");
+      add("popSound", "popSound");
+      add("final", "final");
+      add("finalImg", "finalImg");
+      if (document.getElementById("nochest").checked) params.push("nochest=true");
 
-      const taskParams = tasks.map((task, index) => `task${index + 1}=${encodeURIComponent(task)}`).join('&');
-      let url = `https://nikashum93.github.io/pusyriki2.0/index.html?${taskParams}`;
+      add("taskFont", "taskFont");
+      add("taskColor", "taskColor");
+      add("taskBg", "taskBg");
+      add("taskSize", "taskSize");
 
-      if (img) url += `&img=${img}`;
-      if (feedbackImg) url += `&feedback=${feedbackImg}`;
-      if (noChest) url += `&nochest=1`;
-      if (final) url += `&final=${final}`;
-      if (taskColor) url += `&taskColor=${taskColor}`;
-      if (taskBg) url += `&taskBg=${taskBg}`;
-      if (finalColor) url += `&finalColor=${finalColor}`;
-      if (popSound) url += `&pop=${popSound}`;
+      add("feedbackFont", "feedbackFont");
+      add("feedbackColor", "feedbackColor");
+      add("feedbackBg", "feedbackBg");
+      add("feedbackSize", "feedbackSize");
+      add("feedbackStyle", "feedbackStyle");
 
-      const iframeCode = `<iframe style="width: 1280px; height: 720px; border: none;" src="${url}" scrolling="no" allowfullscreen></iframe>`;
-
-      const output = document.getElementById('output');
-      output.textContent = iframeCode;
-
-      navigator.clipboard.writeText(iframeCode)
-        .then(() => alert("Скопировано в буфер обмена!"))
-        .catch(() => {
-          alert("Не удалось скопировать. Скопируй вручную.");
-        });
+      const url = `https://nikashum93.github.io/pusyriki2.0/index.html?${params.join("&")}`;
+      const iframe = `<iframe src="${url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+      document.getElementById("result").value = iframe;
+      navigator.clipboard.writeText(iframe);
     }
   </script>
 </body>
