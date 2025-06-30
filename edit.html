@@ -1,185 +1,170 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Редактор "Пузырики 2.0"</title>
+  <meta charset="UTF-8">
+  <title>Редактор Пузыриков</title>
   <style>
     body {
-      background: #0d0d0d;
-      font-family: 'Segoe UI', sans-serif;
-      color: #00f2ff;
-      padding: 20px;
-    }
-    h1 {
+      background: #0a0f1c;
+      color: #fff;
+      font-family: 'Trebuchet MS', sans-serif;
       text-align: center;
-      font-size: 26px;
-      color: #00f2ff;
-      text-shadow: 0 0 10px #00f2ff;
+      padding: 40px;
     }
+
+    h1 {
+      font-size: 32px;
+      color: #0ff;
+      text-shadow: 0 0 12px #0ff;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 80px;
+      margin-bottom: 10px;
+    }
+
     label {
       display: block;
-      margin: 10px 0 4px;
-    }
-    input[type="text"], select {
-      width: 100%;
-      padding: 6px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .btn {
-      margin-top: 16px;
-      background: #00f2ff;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
+      margin: 12px 0 4px;
       font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #00f2ff;
+      color: #0ff;
+      text-shadow: 0 0 6px #0ff;
     }
-    .output {
-      margin-top: 20px;
-      padding: 10px;
-      background: #1e1e1e;
-      color: #0f0;
+
+    input, textarea, select {
+      width: 60%;
+      max-width: 600px;
+      background: #111;
+      border: 2px solid #0ff;
       border-radius: 10px;
-      font-size: 13px;
-      word-break: break-word;
+      padding: 10px;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 12px;
     }
-    .logo {
-      display: block;
-      margin: 10px auto;
-      width: 100px;
+
+    textarea {
+      height: 120px;
     }
+
+    button {
+      background: #ff00cc;
+      background: linear-gradient(to right, #ff00cc, #3333ff);
+      color: white;
+      padding: 14px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 0 16px #ff00cc;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
     .footer {
       margin-top: 30px;
-      text-align: center;
       font-size: 14px;
       color: #888;
     }
   </style>
 </head>
 <body>
-  <img src="https://nikashum93.github.io/pusyriki/assets/kgb-logo.png" class="logo" alt="Логотип КГБ" />
-  <h1>Редактор "Пузырики 2.0"</h1>
 
-  <label>Список заданий (каждое с новой строки):</label>
-  <textarea id="tasks"></textarea>
+  <img class="logo" src="https://nikashum93.github.io/pusyriki/assets/kgb-logo.png" alt="KGB Logo">
+  <h1>Пузырики by Nika Shum & КГБ</h1>
 
-  <label>Финальный текст (после открытия сундука):</label>
-  <input type="text" id="finalText" placeholder="Например: Молодец!" />
+  <label>Изображение пузыря (URL)</label>
+  <input id="img" placeholder="https://...">
 
-  <label>Изображение пузыря (опционально):</label>
-  <input type="text" id="bubbleImg" placeholder="URL картинки" />
+  <label>Финальный фидбек</label>
+  <input id="final" placeholder="🎉 Well done!">
 
-  <label>Изображение фидбека (или оставьте пустым для сундука):</label>
-  <input type="text" id="finalImg" />
+  <label>Задания (по одному в строке)</label>
+  <textarea id="tasks" placeholder="Например:\nSay a sentence with 'because'\nWhat did you do yesterday?"></textarea>
 
-  <label><input type="checkbox" id="noChest" /> Без сундука</label>
+  <label>Цвет текста фидбека</label>
+  <input type="color" id="feedbackColor" value="#ffffff">
 
-  <hr />
+  <label>Фон фидбека</label>
+  <input type="color" id="feedbackBg" value="#f39c12">
 
-  <label>Шрифт заданий:</label>
-  <select id="taskFont">
-    <option value="sans-serif">По умолчанию</option>
-    <option value="Comic Sans MS, sans-serif">Comic Sans</option>
-    <option value="Georgia, serif">Georgia</option>
-    <option value="Cursive">Cursive</option>
-    <option value="Arial, sans-serif">Arial</option>
-    <option value="Verdana, sans-serif">Verdana</option>
-    <option value="Trebuchet MS, sans-serif">Trebuchet</option>
-  </select>
+  <label>Размер шрифта фидбека</label>
+  <input id="feedbackSize" placeholder="например, 36px" value="36px">
 
-  <label>Цвет текста заданий:</label>
-  <input type="color" id="taskColor" value="#ffffff" />
-
-  <label>Цвет плашки задания:</label>
-  <input type="color" id="taskBg" value="#00f2fe" />
-
-  <label>Размер шрифта заданий (px):</label>
-  <input type="number" id="taskSize" value="22" min="10" max="60" />
-
-  <hr />
-
-  <label>Шрифт фидбека:</label>
+  <label>Шрифт фидбека</label>
   <select id="feedbackFont">
-    <option value="sans-serif">По умолчанию</option>
     <option value="Comic Sans MS, sans-serif">Comic Sans</option>
-    <option value="Georgia, serif">Georgia</option>
-    <option value="Cursive">Cursive</option>
     <option value="Arial, sans-serif">Arial</option>
     <option value="Verdana, sans-serif">Verdana</option>
-    <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+    <option value="Georgia, serif">Georgia</option>
+    <option value="Caveat, cursive">Caveat</option>
   </select>
 
-  <label>Цвет текста фидбека:</label>
-  <input type="color" id="feedbackColor" value="#ffffff" />
-
-  <label>Фон плашки фидбека:</label>
-  <input type="color" id="feedbackBg" value="#f39c12" />
-
-  <label>Размер шрифта фидбека (px):</label>
-  <input type="number" id="feedbackSize" value="32" min="12" max="80" />
-
-  <label>Стиль фидбека:</label>
+  <label>Стиль фидбека</label>
   <select id="feedbackStyle">
-    <option value="default">Стандартный</option>
+    <option value="default">Обычный</option>
     <option value="neon">Неон</option>
     <option value="gradient">Градиент</option>
   </select>
 
-  <hr />
+  <label>Звук при клике на пузырь (URL)</label>
+  <input id="popSound" placeholder="https://...mp3">
 
-  <label>Звук при лопании пузыря (mp3):</label>
-  <input type="text" id="popSound" placeholder="URL звука" />
+  <label>Звук при открытии фидбека (URL)</label>
+  <input id="openSound" placeholder="https://...mp3">
 
-  <button class="btn" onclick="generate()">Скопировать код</button>
+  <label>Шрифт заданий</label>
+  <select id="taskFont">
+    <option value="Comic Sans MS, sans-serif">Comic Sans</option>
+    <option value="Arial, sans-serif">Arial</option>
+    <option value="Verdana, sans-serif">Verdana</option>
+    <option value="Georgia, serif">Georgia</option>
+    <option value="Caveat, cursive">Caveat</option>
+  </select>
 
-  <div class="output" id="output"></div>
+  <label>Цвет текста заданий</label>
+  <input type="color" id="taskColor" value="#ffffff">
 
-  <div class="footer">(с) Корпорация Геймификации Будущего</div>
+  <label>Фон заданий</label>
+  <input type="color" id="taskBg" value="#00f2fe">
+
+  <label>Размер шрифта заданий</label>
+  <input id="taskSize" placeholder="например, 22px" value="22px">
+
+  <br>
+  <button onclick="generate()">🧪 Скопировать код для Genially</button>
+
+  <div class="footer">© Корпорация Геймификации Будущего</div>
 
   <script>
     function generate() {
-      const tasks = document.getElementById('tasks').value.split('\n').map(s => s.trim()).filter(Boolean);
+      const base = 'https://nikashum93.github.io/pusyriki2.0/index.html?';
       const params = new URLSearchParams();
-      tasks.forEach((task, i) => params.append('task' + (i + 1), task));
 
-      params.append('final', document.getElementById('finalText').value.trim());
-      params.append('img', document.getElementById('bubbleImg').value.trim());
-      params.append('finalImg', document.getElementById('finalImg').value.trim());
+      const tasks = document.getElementById('tasks').value
+        .split('\n')
+        .map(t => t.trim())
+        .filter(t => t);
+      tasks.forEach((t, i) => params.append(`task${i+1}`, encodeURIComponent(t)));
 
-      if (document.getElementById('noChest').checked) {
-        params.append('nochest', 'true');
-      }
+      const keys = ['img','final','feedbackColor','feedbackBg','feedbackFont','feedbackStyle','feedbackSize','taskFont','taskColor','taskBg','taskSize','popSound','openSound'];
+      keys.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value.trim()) {
+          params.set(id, encodeURIComponent(el.value.trim()));
+        }
+      });
 
-      params.append('taskFont', document.getElementById('taskFont').value);
-      params.append('taskColor', document.getElementById('taskColor').value);
-      params.append('taskBg', document.getElementById('taskBg').value);
-      params.append('taskSize', document.getElementById('taskSize').value);
-
-      params.append('feedbackFont', document.getElementById('feedbackFont').value);
-      params.append('feedbackColor', document.getElementById('feedbackColor').value);
-      params.append('feedbackBg', document.getElementById('feedbackBg').value);
-      params.append('feedbackStyle', document.getElementById('feedbackStyle').value);
-      params.append('feedbackSize', document.getElementById('feedbackSize').value);
-
-      const sound = document.getElementById('popSound').value.trim();
-      if (sound) params.append('popSound', sound);
-
-      const url = `https://nikashum93.github.io/pusyriki2.0/?${params.toString()}`;
-      document.getElementById('output').textContent = `<iframe src="${url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
-      navigator.clipboard.writeText(`<iframe src="${url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`);
+      const url = base + params.toString();
+      navigator.clipboard.writeText(url);
+      alert("Скопировано! Вставьте как iframe в Genially :)");
     }
   </script>
+
 </body>
 </html>
