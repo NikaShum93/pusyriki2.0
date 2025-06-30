@@ -1,204 +1,115 @@
-(async function () {
-  const root = document.getElementById('bubble-extension');
-  const urlParams = new URLSearchParams(window.location.search);
+// logic.js (обновлённый с учётом правок)
 
-  // --- Параметры
-  const finalText = decodeURIComponent(urlParams.get('final') || '🎉 Well Done!');
-  const bubbleImg = urlParams.get('bubble') || '';
-  const finalImg = urlParams.get('img') || '';
-  const noChest = urlParams.get('nochest') === '1';
-  const textFont = urlParams.get('font') || 'Arial';
-  const textColor = urlParams.get('color') || '#ffffff';
-  const textSize = parseInt(urlParams.get('size') || '28');
-  const feedbackFont = urlParams.get('finalFont') || 'Arial';
-  const feedbackColor = urlParams.get('finalColor') || '#ffffff';
-  const feedbackSize = parseInt(urlParams.get('finalSize') || '36');
-  const soundUrl = urlParams.get('pop') || 'https://nikashum93.github.io/pusyriki2.0/pop.mp3';
-  const openSound = 'https://nikashum93.github.io/pusyriki2.0/open.mp3';
-  const neonEffect = urlParams.get('neon') === '1';
-  const styleEffect = urlParams.get('style') || ''; // gradient, neon, none
+const params = new URLSearchParams(window.location.search);
 
-  // --- Сбор заданий
-  const TASKS = {};
-  urlParams.forEach((value, key) => {
-    if (key.startsWith('task')) {
-      const decoded = decodeURIComponent(value || '');
-      if (decoded.trim()) {
-        TASKS[key] = decoded.trim();
-      }
-    }
+const bubbleImage = params.get("bubbleImage") || "https://nikashum93.github.io/pusyriki/assets/bubble.png";
+const feedbackText = params.get("feedback") || "Well done!";
+const feedbackImage = params.get("feedbackImage") || "";
+const tasksRaw = params.get("tasks") || "";
+const noChest = params.get("noChest") === "true";
+const fontSize = parseInt(params.get("fontSize") || "36");
+const feedbackFontSize = parseInt(params.get("feedbackFontSize") || "36");
+const popSoundUrl = params.get("popSound") || "https://nikashum93.github.io/pusyriki/assets/pop.mp3";
+const openSoundUrl = params.get("openSound") || "https://nikashum93.github.io/pusyriki/assets/open.mp3";
+const neon = params.get("neon") === "true";
+const feedbackColor = params.get("feedbackColor") || "#FFA500";
+const feedbackTextColor = params.get("feedbackTextColor") || "white";
+
+const tasks = tasksRaw.split("\n").map(t => t.trim()).filter(t => t !== "");
+
+const container = document.getElementById("bubble-extension");
+const popSound = new Audio(popSoundUrl);
+const openSound = new Audio(openSoundUrl);
+
+function createBubble(taskText, index) {
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.style.backgroundImage = `url('${bubbleImage}')`;
+  bubble.dataset.index = index;
+  bubble.style.top = `${Math.random() * 80 + 10}%`;
+  bubble.style.left = `${Math.random() * 80 + 10}%`;
+
+  const move = () => {
+    if (!bubble.parentElement) return;
+    const x = Math.random() * 80 + 10;
+    const y = Math.random() * 80 + 10;
+    bubble.style.transform = `translate(${x}%, ${y}%)`;
+    setTimeout(move, 4000 + Math.random() * 3000);
+  };
+  move();
+
+  bubble.addEventListener("click", () => {
+    popSound.currentTime = 0;
+    popSound.play();
+    showTask(taskText);
+    bubble.remove();
+    popped++;
+    if (popped === tasks.length) showFeedback();
   });
 
-  const total = Object.keys(TASKS).length;
-  const state = { done: 0 };
+  container.appendChild(bubble);
+}
 
-  // --- Аудио
-  const popSound = new Audio(soundUrl);
-  const openChest = new Audio(openSound);
+function showTask(text) {
+  const task = document.createElement("div");
+  task.className = "task";
+  task.innerText = text;
+  task.style.fontSize = fontSize + "px";
+  container.appendChild(task);
+  setTimeout(() => task.remove(), 3000);
+}
 
-  // --- Инициализация
-  await loadFrame();
-  spawnAllBubbles();
+function showFeedback() {
+  const feedback = document.createElement("div");
+  feedback.className = "feedback";
+  feedback.innerText = feedbackText;
+  feedback.style.background = feedbackColor;
+  feedback.style.color = feedbackTextColor;
+  feedback.style.fontSize = feedbackFontSize + "px";
+  feedback.style.cursor = "pointer";
 
-  // === Функции ===
-
-  function loadFrame() {
-    return new Promise((resolve) => {
-      setTimeout(resolve, 100); // короткая пауза перед спавном пузырей
-    });
+  if (neon) {
+    feedback.style.boxShadow = `0 0 20px ${feedbackColor}, 0 0 40px ${feedbackColor}`;
   }
 
-  function spawnAllBubbles() {
-    Object.entries(TASKS).forEach(([key, text]) => spawnBubble(text));
+  const feedbackWrapper = document.createElement("div");
+  feedbackWrapper.className = "feedback-wrapper";
+  feedbackWrapper.appendChild(feedback);
+
+  if (feedbackImage && !noChest) {
+    const img = document.createElement("img");
+    img.src = feedbackImage;
+    img.style.maxWidth = "30%";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
+    feedbackWrapper.insertBefore(img, feedback);
+  } else if (!feedbackImage && !noChest) {
+    const img = document.createElement("img");
+    img.src = "https://nikashum93.github.io/pusyriki/assets/chest_closed.png";
+    img.style.maxWidth = "30%";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
+    feedbackWrapper.insertBefore(img, feedback);
   }
 
-  function spawnBubble(text) {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.textContent = text;
-    bubble.style.fontFamily = textFont;
-    bubble.style.fontSize = `${textSize}px`;
-    bubble.style.color = textColor;
-    if (bubbleImg) {
-      bubble.style.backgroundImage = `url(${bubbleImg})`;
-      bubble.style.backgroundSize = 'contain';
-      bubble.style.backgroundRepeat = 'no-repeat';
-      bubble.style.backgroundPosition = 'center';
-      bubble.textContent = '';
-    }
+  feedbackWrapper.style.position = "absolute";
+  feedbackWrapper.style.top = "50%";
+  feedbackWrapper.style.left = "50%";
+  feedbackWrapper.style.transform = feedbackImage || !noChest ? "translate(-50%, -110%)" : "translate(-50%, -50%)";
 
-    const size = 80;
-    const startX = Math.random() * (window.innerWidth - size);
-    const startY = Math.random() * (window.innerHeight - size);
+  feedbackWrapper.addEventListener("mouseenter", () => {
+    feedbackWrapper.style.transform += " scale(1.05)";
+  });
+  feedbackWrapper.addEventListener("mouseleave", () => {
+    feedbackWrapper.style.transform = feedbackImage || !noChest ? "translate(-50%, -110%)" : "translate(-50%, -50%)";
+  });
+  feedbackWrapper.addEventListener("click", () => {
+    openSound.currentTime = 0;
+    openSound.play();
+  });
 
-    bubble.style.position = 'absolute';
-    bubble.style.left = `${startX}px`;
-    bubble.style.top = `${startY}px`;
-    bubble.style.width = `${size}px`;
-    bubble.style.height = `${size}px`;
-    bubble.style.display = 'flex';
-    bubble.style.alignItems = 'center';
-    bubble.style.justifyContent = 'center';
-    bubble.style.borderRadius = '50%';
-    bubble.style.cursor = 'pointer';
-    bubble.style.transition = 'transform 0.2s';
+  container.appendChild(feedbackWrapper);
+}
 
-    moveBubble(bubble);
-    bubble.onclick = () => {
-      popSound.currentTime = 0;
-      popSound.play();
-      showLabel(text);
-      bubble.remove();
-      state.done++;
-      if (state.done === total) setTimeout(showFinalFeedback, 600);
-    };
-
-    root.appendChild(bubble);
-  }
-
-  function moveBubble(bubble) {
-    let dx = (Math.random() - 0.5) * 2;
-    let dy = (Math.random() - 0.5) * 2;
-
-    function animate() {
-      const rect = bubble.getBoundingClientRect();
-      if (rect.left + dx < 0 || rect.right + dx > window.innerWidth) dx = -dx;
-      if (rect.top + dy < 0 || rect.bottom + dy > window.innerHeight) dy = -dy;
-
-      bubble.style.left = `${rect.left + dx}px`;
-      bubble.style.top = `${rect.top + dy}px`;
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  }
-
-  function showLabel(text) {
-    const label = document.createElement('div');
-    label.textContent = text;
-    label.style.position = 'fixed';
-    label.style.top = '50%';
-    label.style.left = '50%';
-    label.style.transform = 'translate(-50%, -50%)';
-    label.style.background = '#222';
-    label.style.color = textColor;
-    label.style.fontFamily = textFont;
-    label.style.fontSize = `${textSize}px`;
-    label.style.padding = '10px 20px';
-    label.style.borderRadius = '20px';
-    label.style.zIndex = '999';
-    root.appendChild(label);
-    setTimeout(() => label.remove(), 1500);
-  }
-
-  function showFinalFeedback() {
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed';
-    wrapper.style.top = '50%';
-    wrapper.style.left = '50%';
-    wrapper.style.transform = 'translate(-50%, -50%)';
-    wrapper.style.display = 'flex';
-    wrapper.style.flexDirection = 'column';
-    wrapper.style.alignItems = 'center';
-    wrapper.style.cursor = 'pointer';
-    wrapper.style.zIndex = 999;
-
-    const label = document.createElement('div');
-    label.textContent = finalText;
-    label.style.fontFamily = feedbackFont;
-    label.style.fontSize = `${feedbackSize}px`;
-    label.style.color = feedbackColor;
-    label.style.padding = '10px 20px';
-    label.style.borderRadius = '20px';
-    label.style.marginBottom = finalImg || !noChest ? '10px' : '0';
-
-    if (styleEffect === 'neon') {
-      label.style.boxShadow = `0 0 10px ${feedbackColor}, 0 0 20px ${feedbackColor}`;
-    }
-    if (styleEffect === 'gradient') {
-      label.style.background = `linear-gradient(45deg, ${feedbackColor}, #ffffff)`;
-      label.style.color = '#000';
-    } else {
-      label.style.background = '#222';
-    }
-
-    const image = document.createElement('img');
-    if (finalImg) {
-      image.src = finalImg;
-      image.style.width = '150px';
-    } else if (!noChest) {
-      image.src = 'https://media.tenor.com/mqvTrVZEMxIAAAAi/bubble-bfdi.gif';
-      image.style.width = '150px';
-    }
-
-    wrapper.appendChild(label);
-    if (finalImg || !noChest) wrapper.appendChild(image);
-    wrapper.onclick = () => {
-      openChest.currentTime = 0;
-      openChest.play();
-      showSparkles(wrapper);
-    };
-
-    root.appendChild(wrapper);
-  }
-
-  function showSparkles(container) {
-    for (let i = 0; i < 20; i++) {
-      const sparkle = document.createElement('div');
-      sparkle.style.position = 'absolute';
-      sparkle.style.width = '6px';
-      sparkle.style.height = '6px';
-      sparkle.style.borderRadius = '50%';
-      sparkle.style.background = 'gold';
-      sparkle.style.left = '50%';
-      sparkle.style.top = '50%';
-      sparkle.style.transform = 'translate(-50%, -50%)';
-      sparkle.style.animation = `flyOut 1s ease-out forwards`;
-      sparkle.style.animationDelay = `${i * 30}ms`;
-      container.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 1000);
-    }
-  }
-
-})();
+let popped = 0;
+tasks.forEach((task, i) => createBubble(task, i));
