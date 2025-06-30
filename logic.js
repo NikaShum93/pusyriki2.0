@@ -1,4 +1,3 @@
-// logic.js
 (function(){
   const root = document.getElementById('bubble-extension');
   const urlParams = new URLSearchParams(window.location.search);
@@ -13,7 +12,7 @@
   const feedbackColor = decodeURIComponent(urlParams.get('feedbackColor') || '#ffffff');
   const feedbackBg = decodeURIComponent(urlParams.get('feedbackBg') || '#f39c12');
   const feedbackStyle = decodeURIComponent(urlParams.get('feedbackStyle') || 'default');
-  const feedbackSize = decodeURIComponent(urlParams.get('feedbackSize') || '32');
+  const feedbackSize = decodeURIComponent(urlParams.get('feedbackSize') || '36');
 
   const taskFont = decodeURIComponent(urlParams.get('taskFont') || 'sans-serif');
   const taskColor = decodeURIComponent(urlParams.get('taskColor') || '#ffffff');
@@ -169,6 +168,7 @@
       root.appendChild(img);
       img.addEventListener('click', () => {
         showFinalTextOnly();
+        sparkleEffect();
       });
     } else {
       const chest = document.createElement('img');
@@ -182,6 +182,7 @@
       chest.addEventListener('click', () => {
         chest.src = 'https://img.genially.com/64233afb55129a0017751c8e/d76550fd-2622-441f-bbf2-faee6906772e.png';
         showFinalTextOnly();
+        sparkleEffect();
       });
     }
   }
@@ -190,19 +191,44 @@
     const label = document.createElement('div');
     label.textContent = finalText;
     Object.assign(label.style, {
-      position: 'absolute', top: '38%', left: '50%', transform: 'translate(-50%, -50%)',
-      fontSize: `${feedbackSize}px`, fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
+      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+      fontSize: `${feedbackSize || 36}px`, fontWeight: 'bold', color: feedbackColor, background: feedbackBg,
       padding: '16px 30px', borderRadius: '16px', fontFamily: feedbackFont,
-      boxShadow: '0 8px 20px rgba(0,0,0,0.3)', zIndex: 400, pointerEvents: 'none',
-      textShadow: '2px 2px 6px rgba(0,0,0,0.4)'
+      boxShadow: '0 8px 20px rgba(0,0,0,0.3)', zIndex: 400, pointerEvents: 'auto',
+      textAlign: 'center', maxWidth: '90%'
     });
+
     if (feedbackStyle === 'neon') {
-      label.style.textShadow = `0 0 8px ${feedbackColor}, 0 0 16px ${feedbackColor}`;
+      label.style.textShadow = `0 0 6px ${feedbackColor}, 0 0 12px ${feedbackColor}`;
+      label.style.boxShadow = `0 0 12px ${feedbackColor}, 0 0 24px ${feedbackColor}`;
     } else if (feedbackStyle === 'gradient') {
       label.style.background = `linear-gradient(135deg, ${feedbackColor}, ${feedbackBg})`;
       label.style.color = '#fff';
       label.style.textShadow = 'none';
     }
+
+    label.addEventListener('click', () => {
+      new Audio(popSoundSrc).play().catch(() => {});
+      sparkleEffect();
+    });
+
     root.appendChild(label);
+  }
+
+  function sparkleEffect() {
+    const sparkle = document.createElement('div');
+    sparkle.textContent = '✨';
+    Object.assign(sparkle.style, {
+      position: 'absolute', top: '50%', left: '50%',
+      transform: 'translate(-50%, -50%)', fontSize: '40px',
+      zIndex: 500, pointerEvents: 'none', opacity: 1,
+      transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
+    });
+    root.appendChild(sparkle);
+    requestAnimationFrame(() => {
+      sparkle.style.opacity = '0';
+      sparkle.style.transform = 'scale(2)';
+    });
+    setTimeout(() => sparkle.remove(), 800);
   }
 })();
