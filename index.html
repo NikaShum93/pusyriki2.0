@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Пузырики</title>
   <style>
     html, body {
@@ -24,6 +24,40 @@
 </head>
 <body>
   <div id="bubble-extension"></div>
-  <script src="logic.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    function fallbackImage() {
+      const canvas = document.createElement('canvas');
+      const size = 100;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createRadialGradient(
+        size / 2, size / 2, size * 0.1,
+        size / 2, size / 2, size / 2
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      gradient.addColorStop(0.3, 'rgba(173, 216, 230, 0.6)');
+      gradient.addColorStop(1, 'rgba(0, 191, 255, 0.2)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      return canvas.toDataURL();
+    }
+
+    if (!params.get('bubbleImage')) {
+      params.set('bubbleImage', fallbackImage());
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://nikashum93.github.io/pusyriki2.0/logic.js';
+    script.onload = () => {
+      if (typeof startBubbles === 'function') {
+        startBubbles(params);
+      }
+    };
+    document.body.appendChild(script);
+  </script>
 </body>
 </html>
