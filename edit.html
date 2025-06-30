@@ -62,7 +62,7 @@
     }
     .output {
       margin-top: 2em;
-      word-break: break-all;
+      word-break: break-word;
       background: #111;
       padding: 1em;
       border-radius: 12px;
@@ -89,6 +89,20 @@
 
   <label>Размер шрифта заданий</label>
   <input id="fontSize" type="number" value="36" autocomplete="off" />
+
+  <label>Фон плашки задания</label>
+  <input id="taskBgColor" type="color" value="#ffffff" autocomplete="off" />
+
+  <label>Цвет текста задания</label>
+  <input id="taskTextColor" type="color" value="#000000" autocomplete="off" />
+
+  <label>Эффект плашки (тень или рамка)</label>
+  <select id="taskEffect">
+    <option value="none">Нет</option>
+    <option value="shadow">Тень</option>
+    <option value="border">Рамка</option>
+    <option value="3d">3D</option>
+  </select>
 
   <label>Размер шрифта фидбека</label>
   <input id="feedbackFontSize" type="number" value="36" autocomplete="off" />
@@ -131,6 +145,9 @@
         feedback: feedback.value,
         feedbackImage: feedbackImage.value,
         fontSize: fontSize.value,
+        taskBgColor: taskBgColor.value,
+        taskTextColor: taskTextColor.value,
+        taskEffect: taskEffect.value,
         feedbackFontSize: feedbackFontSize.value,
         feedbackColor: feedbackColor.value,
         feedbackTextColor: feedbackTextColor.value,
@@ -141,9 +158,7 @@
         tasks: tasks.value.trim()
       });
       const url = `https://nikashum93.github.io/pusyriki2.0/index.html?${params.toString()}`;
-      output.innerHTML = `<textarea readonly style='width:100%;height:100px;'>
-<iframe src="${url}" style="width:100%;height:100%" frameborder="0" allowfullscreen></iframe>
-</textarea>`;
+      output.innerHTML = `<textarea readonly style='width:100%;height:100px;'>\n<iframe src="${url}" style="width:100%;height:100%" frameborder="0" allowfullscreen></iframe>\n</textarea>`;
     }
   </script>
 </body>
