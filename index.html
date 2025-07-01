@@ -26,6 +26,7 @@
       text-align: center;
       padding: 20px;
       z-index: 10;
+      border: 2px solid;
     }
     .hidden {
       display: none;
@@ -58,6 +59,20 @@
     const feedbackImage = params.get("feedbackImage") || "";
     const noFeedbackText = params.has("noFeedbackText");
 
+    const taskBgColor = decodeURIComponent(params.get("taskBgColor") || "#007fff");
+    const taskTextColor = decodeURIComponent(params.get("taskTextColor") || "#ffffff");
+    const taskBorderRadius = params.get("taskRadius") || "20px";
+    const taskBorderColor = decodeURIComponent(params.get("taskBorderColor") || "#00ffff");
+    const taskNeon = params.get("taskNeon") === "true";
+    const taskFontSize = params.get("fontSize") || "36px";
+
+    const feedbackBgColor = decodeURIComponent(params.get("feedbackColor") || "#007fff");
+    const feedbackTextColor = decodeURIComponent(params.get("feedbackTextColor") || "#ffffff");
+    const feedbackFontSize = params.get("feedbackFontSize") || "36px";
+    const feedbackRadius = params.get("feedbackRadius") || "20px";
+    const feedbackBorderColor = decodeURIComponent(params.get("feedbackBorderColor") || "#00ffff");
+    const feedbackNeon = params.get("feedbackNeon") === "true";
+
     const popSound = new Audio(params.get("popSound") || "https://nikashum93.github.io/pusyriki2.0/assets/pop.mp3");
     const openSound = new Audio(params.get("openSound") || "https://nikashum93.github.io/pusyriki2.0/open.mp3");
 
@@ -69,6 +84,22 @@
     const taskBox = document.getElementById("task");
     const feedbackBox = document.getElementById("feedback");
     const counter = document.getElementById("counter");
+
+    taskBox.style.background = taskBgColor;
+    taskBox.style.color = taskTextColor;
+    taskBox.style.borderRadius = taskBorderRadius;
+    taskBox.style.borderColor = taskBorderColor;
+    taskBox.style.fontSize = taskFontSize;
+    taskBox.style.borderStyle = "solid";
+    if (taskNeon) taskBox.style.boxShadow = `0 0 15px ${taskBorderColor}`;
+
+    feedbackBox.style.background = feedbackBgColor;
+    feedbackBox.style.color = feedbackTextColor;
+    feedbackBox.style.borderRadius = feedbackRadius;
+    feedbackBox.style.borderColor = feedbackBorderColor;
+    feedbackBox.style.fontSize = feedbackFontSize;
+    feedbackBox.style.borderStyle = "solid";
+    if (feedbackNeon) feedbackBox.style.boxShadow = `0 0 15px ${feedbackBorderColor}`;
 
     let bubbles = [];
     let popped = 0;
@@ -100,7 +131,6 @@
           this.y += distY * 0.01;
         }
 
-        // Отскок от стен
         if (this.x < this.radius || this.x > canvas.width - this.radius) this.speedX *= -1;
         if (this.y < this.radius || this.y > canvas.height - this.radius) this.speedY *= -1;
       }
