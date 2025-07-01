@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Пузырики</title>
+  <meta charset="UTF-8" />
+  <title>Пузырики 2.0</title>
   <style>
     html, body {
       margin: 0;
@@ -12,10 +12,8 @@
     }
     #bubble-extension {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: auto;
       overflow: hidden;
       z-index: 1;
@@ -24,40 +22,159 @@
 </head>
 <body>
   <div id="bubble-extension"></div>
+
   <script>
-    const params = new URLSearchParams(window.location.search);
-    function fallbackImage() {
-      const canvas = document.createElement('canvas');
-      const size = 100;
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const gradient = ctx.createRadialGradient(
-        size / 2, size / 2, size * 0.1,
-        size / 2, size / 2, size / 2
-      );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-      gradient.addColorStop(0.3, 'rgba(173, 216, 230, 0.6)');
-      gradient.addColorStop(1, 'rgba(0, 191, 255, 0.2)');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-      ctx.fill();
-      return canvas.toDataURL();
-    }
+    (function() {
+      const root = document.getElementById('bubble-extension');
+      const params = new URLSearchParams(location.search);
 
-    if (!params.get('bubbleImage')) {
-      params.set('bubbleImage', fallbackImage());
-    }
+      const finalText = decodeURIComponent(params.get("final") || "🎉 Well done!");
+      const bubbleImg = decodeURIComponent(params.get("img") || "https://media.tenor.com/mqvTrVZEMxIAAAAi/bubble-bfdi.gif");
+      const popSound = decodeURIComponent(params.get("popSound") || "https://nikashum93.github.io/bubbles-by-nika-shum/pop.mp3");
+      const openSound = decodeURIComponent(params.get("openSound") || "https://nikashum93.github.io/bubbles-by-nika-shum/open.mp3");
+      const finalImgClosed = decodeURIComponent(params.get("finalImgClosed") || "https://img.genially.com/64233afb55129a0017751c8e/915b9b98-7a24-4b3f-887a-28042ba9acca.png");
+      const finalImgOpened = decodeURIComponent(params.get("finalImgOpened") || "https://img.genially.com/64233afb55129a0017751c8e/d76550fd-2622-441f-bbf2-faee6906772e.png");
 
-    const script = document.createElement('script');
-    script.src = 'https://nikashum93.github.io/pusyriki2.0/logic.js';
-    script.onload = () => {
-      if (typeof startBubbles === 'function') {
-        startBubbles(params);
+      const taskParams = Array.from(params.entries()).filter(([k]) => k.startsWith('task'));
+      const TASKS = Object.fromEntries(taskParams.map(([k,v]) => [parseInt(k.replace('task','')), decodeURIComponent(v)]));
+      const total = Object.keys(TASKS).length;
+      let popped = 0;
+      let finalUnlocked = false;
+
+      const counter = document.createElement('div');
+      counter.innerHTML = `🫧 <strong>0 / ${total}</strong>`;
+      Object.assign(counter.style, {
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        background: 'white',
+        padding: '10px 16px',
+        borderRadius: '12px',
+        fontFamily: 'sans-serif',
+        fontSize: '18px',
+        color: '#2d3436',
+        zIndex: 300,
+        pointerEvents: 'none'
+      });
+      root.appendChild(counter);
+
+      const bubbles = [];
+      for (let i = 1; i <= total; i++) {
+        const el = document.createElement('img');
+        el.src = bubbleImg;
+        el.style.opacity = '0.7';
+        Object.assign(el.style, {
+          position: 'absolute',
+          width: '80px',
+          height: '80px',
+          pointerEvents: 'auto',
+          cursor: 'pointer',
+          zIndex: 100
+        });
+
+        const margin = 40;
+        const maxW = root.clientWidth - 80 - margin;
+        const maxH = root.clientHeight - 80 - margin;
+        el.style.left = (margin + Math.random() * maxW) + 'px';
+        el.style.top = (margin + Math.random() * maxH) + 'px';
+
+        const dx = (Math.random()*2 - 1) * 1.2;
+        const dy = (Math.random()*2 - 1) * 1.2;
+        const bubble = { el, dx, dy, id: i };
+        bubbles.push(bubble);
+
+        el.addEventListener('click', () => {
+          new Audio(popSound).play().catch(()=>{});
+          el.remove();
+          popped++;
+          counter.innerHTML = `🫧 <strong>${popped} / ${total}</strong>`;
+          showMessage(i);
+        });
+
+        root.appendChild(el);
       }
-    };
-    document.body.appendChild(script);
+
+      function animate() {
+        const W = root.clientWidth;
+        const H = root.clientHeight;
+        for (const b of bubbles) {
+          if (!b.el.parentNode) continue;
+          let x = b.el.offsetLeft + b.dx;
+          let y = b.el.offsetTop + b.dy;
+          if (x <= 20 || x >= W - 100) b.dx *= -1;
+          if (y <= 20 || y >= H - 100) b.dy *= -1;
+          b.el.style.left = (b.el.offsetLeft + b.dx) + 'px';
+          b.el.style.top = (b.el.offsetTop + b.dy) + 'px';
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      function showMessage(id) {
+        const msg = document.createElement('div');
+        msg.innerHTML = TASKS[id] || `<b>Task ${id}</b>`;
+        Object.assign(msg.style, {
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: '#4facfe',
+          color: 'white',
+          padding: '24px 36px',
+          borderRadius: '20px',
+          fontSize: '22px',
+          fontFamily: 'sans-serif',
+          textAlign: 'center',
+          zIndex: 200,
+          cursor: 'pointer'
+        });
+        msg.addEventListener('click', () => {
+          msg.remove();
+          if (popped === total && !finalUnlocked) {
+            finalUnlocked = true;
+            showFinal();
+          }
+        });
+        root.appendChild(msg);
+      }
+
+      function showFinal() {
+        counter.remove();
+        const chest = document.createElement('img');
+        chest.src = finalImgClosed;
+        Object.assign(chest.style, {
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '220px',
+          cursor: 'pointer',
+          zIndex: 300
+        });
+        chest.addEventListener('click', () => {
+          chest.src = finalImgOpened;
+          new Audio(openSound).play().catch(()=>{});
+          const label = document.createElement('div');
+          label.textContent = finalText;
+          Object.assign(label.style, {
+            position: 'absolute',
+            top: '32%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '30px',
+            fontWeight: 'bold',
+            color: '#fff',
+            background: '#e67e22',
+            borderRadius: '16px',
+            padding: '16px 24px',
+            fontFamily: 'sans-serif',
+            zIndex: 400
+          });
+          root.appendChild(label);
+        });
+        root.appendChild(chest);
+      }
+    })();
   </script>
 </body>
 </html>
