@@ -1,4 +1,4 @@
-<!-- ✅ Полный index.html с поддержкой пузырей, заданий, фидбека и новых эффектов -->
+<!-- ✅ Полный index.html с поддержкой пузырей, заданий, фидбека, эффектов, и кастомизации -->
 <html>
 <head>
   <meta charset="UTF-8">
@@ -40,6 +40,19 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: sparkle 0.5s ease-out forwards;
+    }
+    @keyframes sparkle {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -58,6 +71,9 @@
     const borderColorFeedback = urlParams.get("borderColorFeedback") || "#ff00ff";
     const borderNeonFeedback = urlParams.get("borderNeonFeedback") === "true";
     const borderRadius = urlParams.get("borderRadius") || "16";
+    const noFeedbackText = urlParams.get("noFeedbackText") === "true";
+    const bubbleImage = urlParams.get("bubbleImage");
+    const feedbackImage = urlParams.get("feedbackImage");
 
     const tasks = (urlParams.get("tasks") || "Task 1\nTask 2\nTask 3").split("%0A");
     let currentTask = 0;
@@ -87,6 +103,15 @@
     taskBox.style.borderRadius = `${borderRadius}px`;
     feedbackBox.style.borderRadius = `${borderRadius}px`;
 
+    function createSparkle(x, y) {
+      const sparkle = document.createElement("div");
+      sparkle.className = "sparkle";
+      sparkle.style.left = `${x}px`;
+      sparkle.style.top = `${y}px`;
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 500);
+    }
+
     function createBubble(x, y) {
       const bubble = document.createElement("div");
       bubble.className = "bubble";
@@ -94,10 +119,17 @@
       bubble.style.height = "80px";
       bubble.style.left = `${x}px`;
       bubble.style.top = `${y}px`;
-      bubble.style.background = "radial-gradient(circle at 30% 30%, #aef, #36c)";
+      if (bubbleImage) {
+        bubble.style.background = `url('${decodeURIComponent(bubbleImage)}') center/cover`;
+      } else {
+        bubble.style.background = "radial-gradient(circle at 30% 30%, #aef, #36c)";
+      }
 
-      bubble.addEventListener("click", () => {
+      bubble.addEventListener("click", (e) => {
         bubble.remove();
+        for (let i = 0; i < 10; i++) {
+          createSparkle(e.clientX + Math.random()*20 - 10, e.clientY + Math.random()*20 - 10);
+        }
         showTask();
       });
       document.body.appendChild(bubble);
@@ -119,8 +151,18 @@
     }
 
     function showFeedback() {
-      feedbackBox.innerText = decodeURIComponent(urlParams.get("feedback") || "Well done!");
+      if (!noFeedbackText) {
+        feedbackBox.innerText = decodeURIComponent(urlParams.get("feedback") || "Well done!");
+      }
       feedbackBox.style.display = "block";
+      if (feedbackImage) {
+        feedbackBox.style.background = `url('${decodeURIComponent(feedbackImage)}') center/contain no-repeat`;
+      }
+      feedbackBox.onclick = (e) => {
+        for (let i = 0; i < 15; i++) {
+          createSparkle(e.clientX + Math.random()*30 - 15, e.clientY + Math.random()*30 - 15);
+        }
+      };
     }
 
     for (let i = 0; i < tasks.length; i++) {
