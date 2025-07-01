@@ -1,116 +1,185 @@
-<!-- ✅ Полный index.html с поддержкой новых параметров: рамка, неон, стекло, скругление -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <title>Пузырики 2.0</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
       background: transparent;
+      overflow: hidden;
     }
-    #taskBox, #feedbackBox {
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .task, .feedback {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      max-width: 80%;
       text-align: center;
       padding: 20px;
-      display: none;
       z-index: 10;
     }
-    .glass {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+    .hidden {
+      display: none;
+    }
+    .counter {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 20px;
+      padding: 10px 20px;
+      border-radius: 16px;
+      font-family: sans-serif;
+      z-index: 9;
     }
   </style>
 </head>
 <body>
-  <div id="taskBox"></div>
-  <div id="feedbackBox"></div>
+  <div class="counter" id="counter">0</div>
+  <div class="task hidden" id="task"></div>
+  <div class="feedback hidden" id="feedback"></div>
+  <canvas id="canvas"></canvas>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    const tasks = (params.get("tasks") || "Task 1\nTask 2").split(/\n|%0A/).filter(Boolean);
+    const bubbleImage = params.get("bubbleImage") || "";
+    const feedbackText = params.get("feedback") || "Well done!";
+    const feedbackImage = params.get("feedbackImage") || "";
+    const noFeedbackText = params.has("noFeedbackText");
 
-    const tasks = (urlParams.get("tasks") || "").split("\n");
-    const feedbackText = urlParams.get("feedback") || "Good job!";
-    const feedbackImage = urlParams.get("feedbackImage") || "";
-    const noFeedbackText = urlParams.get("noFeedbackText") === "true";
+    const popSound = new Audio(params.get("popSound") || "https://nikashum93.github.io/pusyriki2.0/assets/pop.mp3");
+    const openSound = new Audio(params.get("openSound") || "https://nikashum93.github.io/pusyriki2.0/open.mp3");
 
-    const taskBox = document.getElementById("taskBox");
-    const feedbackBox = document.getElementById("feedbackBox");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    const taskFont = urlParams.get("taskFont") || "sans-serif";
-    const taskFontSize = urlParams.get("taskFontSize") || 36;
-    const taskTextColor = urlParams.get("taskTextColor") || "#fff";
-    const glassTask = urlParams.get("glassTask") === "true";
-    const borderTask = urlParams.get("borderTask") === "true";
-    const borderColorTask = urlParams.get("borderColorTask") || "#00ffff";
-    const borderNeonTask = urlParams.get("borderNeonTask") === "true";
-    const neonColorTask = urlParams.get("neonColorTask") || "#00ffff";
+    const taskBox = document.getElementById("task");
+    const feedbackBox = document.getElementById("feedback");
+    const counter = document.getElementById("counter");
 
-    const feedbackFont = urlParams.get("feedbackFont") || "sans-serif";
-    const feedbackFontSize = urlParams.get("feedbackFontSize") || 36;
-    const feedbackTextColor = urlParams.get("feedbackTextColor") || "#fff";
-    const glassFeedback = urlParams.get("glassFeedback") === "true";
-    const borderFeedback = urlParams.get("borderFeedback") === "true";
-    const borderColorFeedback = urlParams.get("borderColorFeedback") || "#ff00ff";
-    const borderNeonFeedback = urlParams.get("borderNeonFeedback") === "true";
-    const neonColorFeedback = urlParams.get("neonColorFeedback") || "#ff00ff";
+    let bubbles = [];
+    let popped = 0;
 
-    const borderRadius = urlParams.get("borderRadius") || 16;
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
 
-    function applyStyles(box, font, fontSize, textColor, glass, border, borderColor, neon, neonColor) {
-      box.style.fontFamily = font;
-      box.style.fontSize = fontSize + "px";
-      box.style.color = textColor;
-      box.style.borderRadius = borderRadius + "px";
-      if (glass) box.classList.add("glass");
-      if (border) box.style.border = `2px solid ${borderColor}`;
-      if (neon) {
-        box.style.boxShadow = `0 0 12px ${neonColor}, 0 0 20px ${neonColor}`;
+    class Bubble {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 40;
+        this.speedX = random(-0.5, 0.5);
+        this.speedY = random(-0.5, 0.5);
+        this.opacity = 0.6;
+        this.task = tasks[bubbles.length];
+        this.clicked = false;
+      }
+      move() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        const distX = this.x - mouse.x;
+        const distY = this.y - mouse.y;
+        const dist = Math.sqrt(distX * distX + distY * distY);
+        if (dist < 100) {
+          this.x += distX * 0.01;
+          this.y += distY * 0.01;
+        }
+
+        // Отскок от стен
+        if (this.x < this.radius || this.x > canvas.width - this.radius) this.speedX *= -1;
+        if (this.y < this.radius || this.y > canvas.height - this.radius) this.speedY *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.globalAlpha = this.opacity;
+        if (bubbleImage) {
+          const img = new Image();
+          img.src = bubbleImage;
+          ctx.drawImage(img, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+        } else {
+          ctx.fillStyle = "#00ffff";
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      isClicked(mx, my) {
+        return Math.hypot(this.x - mx, this.y - my) < this.radius;
       }
     }
 
-    // Показ задания
-    let currentTask = 0;
-    function showTask() {
-      if (currentTask >= tasks.length) {
-        showFeedback();
-        return;
+    const mouse = { x: -9999, y: -9999 };
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function spawnBubbles() {
+      for (let i = 0; i < tasks.length; i++) {
+        const x = random(100, canvas.width - 100);
+        const y = random(100, canvas.height - 100);
+        bubbles.push(new Bubble(x, y));
       }
-      taskBox.innerHTML = tasks[currentTask];
-      taskBox.style.display = "block";
-      feedbackBox.style.display = "none";
-      currentTask++;
     }
 
-    // Показ фидбека
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      bubbles.forEach(b => {
+        b.move();
+        b.draw();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      for (let i = 0; i < bubbles.length; i++) {
+        const b = bubbles[i];
+        if (!b.clicked && b.isClicked(mx, my)) {
+          b.clicked = true;
+          popSound.play();
+          taskBox.textContent = b.task;
+          taskBox.classList.remove("hidden");
+          setTimeout(() => taskBox.classList.add("hidden"), 2000);
+          popped++;
+          counter.textContent = popped;
+          if (popped === bubbles.length) showFeedback();
+          return;
+        }
+      }
+    });
+
     function showFeedback() {
-      taskBox.style.display = "none";
-      feedbackBox.innerHTML = "";
-      if (!noFeedbackText) {
-        const text = document.createElement("div");
-        text.textContent = feedbackText;
-        feedbackBox.appendChild(text);
-      }
+      if (!noFeedbackText) feedbackBox.textContent = feedbackText;
       if (feedbackImage) {
         const img = document.createElement("img");
         img.src = feedbackImage;
-        img.style.maxWidth = "100%";
+        img.style.maxWidth = "200px";
         feedbackBox.appendChild(img);
       }
-      feedbackBox.style.display = "block";
+      feedbackBox.classList.remove("hidden");
+      openSound.play();
     }
 
-    applyStyles(taskBox, taskFont, taskFontSize, taskTextColor, glassTask, borderTask, borderColorTask, borderNeonTask, neonColorTask);
-    applyStyles(feedbackBox, feedbackFont, feedbackFontSize, feedbackTextColor, glassFeedback, borderFeedback, borderColorFeedback, borderNeonFeedback, neonColorFeedback);
-
-    taskBox.onclick = () => showTask();
-    showTask();
+    spawnBubbles();
+    draw();
   </script>
 </body>
 </html>
