@@ -43,6 +43,18 @@
       font-family: sans-serif;
       z-index: 9;
     }
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: sparkle-animation 0.6s ease-out forwards;
+    }
+    @keyframes sparkle-animation {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0.3) translateY(-30px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -55,6 +67,7 @@
     const params = new URLSearchParams(window.location.search);
     const tasks = (params.get("tasks") || "Task 1\nTask 2").split(/\n|%0A/).filter(Boolean);
     const bubbleImage = params.get("bubbleImage") || "";
+    const bubbleColor = params.get("bubbleColor") || "#00ffff";
     const feedbackText = params.get("feedback") || "Well done!";
     const feedbackImage = params.get("feedbackImage") || "";
     const noFeedbackText = params.has("noFeedbackText");
@@ -73,7 +86,7 @@
     const feedbackBorderColor = decodeURIComponent(params.get("feedbackBorderColor") || "#00ffff");
     const feedbackNeon = params.get("feedbackNeon") === "true";
 
-    const popSound = new Audio(params.get("popSound") || "https://nikashum93.github.io/pusyriki2.0/assets/pop.mp3");
+    const popSound = new Audio(params.get("popSound") || "https://nikashum93.github.io/pusyriki2.0/pop.mp3");
     const openSound = new Audio(params.get("openSound") || "https://nikashum93.github.io/pusyriki2.0/open.mp3");
 
     const canvas = document.getElementById("canvas");
@@ -113,9 +126,9 @@
         this.x = x;
         this.y = y;
         this.radius = 40;
-        this.speedX = random(-0.5, 0.5);
-        this.speedY = random(-0.5, 0.5);
-        this.opacity = 0.6;
+        this.speedX = random(-1.5, 1.5);
+        this.speedY = random(-1.5, 1.5);
+        this.opacity = 0.8;
         this.task = tasks[bubbles.length];
         this.clicked = false;
       }
@@ -126,9 +139,9 @@
         const distX = this.x - mouse.x;
         const distY = this.y - mouse.y;
         const dist = Math.sqrt(distX * distX + distY * distY);
-        if (dist < 100) {
-          this.x += distX * 0.01;
-          this.y += distY * 0.01;
+        if (dist < 120) {
+          this.x += distX * 0.02;
+          this.y += distY * 0.02;
         }
 
         if (this.x < this.radius || this.x > canvas.width - this.radius) this.speedX *= -1;
@@ -142,7 +155,10 @@
           img.src = bubbleImage;
           ctx.drawImage(img, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
         } else {
-          ctx.fillStyle = "#00ffff";
+          const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.2, this.x, this.y, this.radius);
+          gradient.addColorStop(0, "white");
+          gradient.addColorStop(1, bubbleColor);
+          ctx.fillStyle = gradient;
           ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
           ctx.fill();
         }
@@ -176,6 +192,18 @@
       requestAnimationFrame(draw);
     }
 
+    function createSparkles(x, y) {
+      for (let i = 0; i < 10; i++) {
+        const sparkle = document.createElement("div");
+        sparkle.className = "sparkle";
+        sparkle.style.left = `${x + random(-20, 20)}px`;
+        sparkle.style.top = `${y + random(-20, 20)}px`;
+        sparkle.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 600);
+      }
+    }
+
     canvas.addEventListener("click", (e) => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
@@ -185,6 +213,7 @@
         if (!b.clicked && b.isClicked(mx, my)) {
           b.clicked = true;
           popSound.play();
+          createSparkles(b.x, b.y);
           taskBox.textContent = b.task;
           taskBox.classList.remove("hidden");
           setTimeout(() => taskBox.classList.add("hidden"), 2000);
