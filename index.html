@@ -123,6 +123,13 @@
     if (bubbleImage) {
       bubbleImg = new Image();
       bubbleImg.src = bubbleImage;
+      bubbleImg.onload = () => {
+        spawnBubbles();
+        draw();
+      }
+    } else {
+      spawnBubbles();
+      draw();
     }
 
     let bubbles = [];
@@ -169,7 +176,10 @@
           gradient.addColorStop(1, bubbleColor);
           ctx.fillStyle = gradient;
           ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.shadowColor = bubbleColor;
+          ctx.shadowBlur = 15;
           ctx.fill();
+          ctx.shadowBlur = 0;
         }
         ctx.globalAlpha = 1;
       }
@@ -245,9 +255,6 @@
       feedbackBox.classList.remove("hidden");
       openSound.play();
     }
-
-    spawnBubbles();
-    draw();
   </script>
 </body>
 </html>
