@@ -89,6 +89,11 @@
     const popSound = new Audio(params.get("popSound") || "https://nikashum93.github.io/pusyriki2.0/pop.mp3");
     const openSound = new Audio(params.get("openSound") || "https://nikashum93.github.io/pusyriki2.0/open.mp3");
 
+    document.body.addEventListener('click', () => {
+      popSound.load();
+      openSound.load();
+    }, { once: true });
+
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
