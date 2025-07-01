@@ -119,6 +119,12 @@
     feedbackBox.style.borderStyle = "solid";
     if (feedbackNeon) feedbackBox.style.boxShadow = `0 0 15px ${feedbackBorderColor}`;
 
+    let bubbleImg = null;
+    if (bubbleImage) {
+      bubbleImg = new Image();
+      bubbleImg.src = bubbleImage;
+    }
+
     let bubbles = [];
     let popped = 0;
 
@@ -155,10 +161,8 @@
       draw() {
         ctx.beginPath();
         ctx.globalAlpha = this.opacity;
-        if (bubbleImage) {
-          const img = new Image();
-          img.src = bubbleImage;
-          ctx.drawImage(img, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+        if (bubbleImg && bubbleImg.complete) {
+          ctx.drawImage(bubbleImg, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
         } else {
           const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.2, this.x, this.y, this.radius);
           gradient.addColorStop(0, "white");
